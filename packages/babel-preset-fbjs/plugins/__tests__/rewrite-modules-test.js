@@ -1,19 +1,17 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 'use strict';
 
-jest.dontMock('babel-core');
+jest.dontMock('@babel/core');
 jest.dontMock('../rewrite-modules');
 
 describe('rewrite-modules', function() {
-  let babel = require('babel-core');
+  let babel = require('@babel/core');
   let rewriteModules = require('../rewrite-modules');
 
   function normalizeResults(code) {
@@ -30,7 +28,7 @@ describe('rewrite-modules', function() {
           }
         );
 
-        expect(result.code).toEqual('require(\'test/test\');');
+        expect(result.code).toEqual('require("test/test");');
       });
 
       it('should replace the prefix on type imports', function() {
@@ -38,7 +36,7 @@ describe('rewrite-modules', function() {
           'import type Test from "test";',
           {
             plugins: [
-              'syntax-flow',
+              '@babel/plugin-syntax-flow',
               [rewriteModules, {map: {'test': 'test/test'}}]
             ],
           }
@@ -49,12 +47,12 @@ describe('rewrite-modules', function() {
 
       it('should transform typeof imports', function() {
         const code = `import typeof Type from 'test';`;
-        const expected = `import typeof Type from 'test/test';`;
+        const expected = `import typeof Type from "test/test";`;
         const result = babel.transform(
           code,
           {
             plugins: [
-              'syntax-flow',
+              '@babel/plugin-syntax-flow',
               [rewriteModules, {map: {test: 'test/test'}}],
             ],
           }
@@ -80,14 +78,14 @@ describe('rewrite-modules', function() {
         const expected = `function test() {
           'use strict';
 
-          jest.mock('foo/foo');
-          jest.mock('foo/foo').mock('bar/bar').dontMock('baz/baz');
-          var fooMock = jest.genMockFromModule('foo/foo');
-          jest.unmock('foo/foo');
-          jest.setMock('foo/foo', () => {});
+          jest.mock("foo/foo");
+          jest.mock("foo/foo").mock("bar/bar").dontMock("baz/baz");
+          var fooMock = jest.genMockFromModule("foo/foo");
+          jest.unmock("foo/foo");
+          jest.setMock("foo/foo", () => {});
 
-          var foo = require('foo/foo');
-          var actualFoo = require.requireActual('foo/foo');
+          var foo = require("foo/foo");
+          var actualFoo = require.requireActual("foo/foo");
         }`;
 
         const rewritePlugin = [

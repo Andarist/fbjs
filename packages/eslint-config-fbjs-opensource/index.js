@@ -1,10 +1,8 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) 2013-present, Facebook, Inc.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 // This is the ideal state of our ESLint config that we'll use for open source
@@ -92,6 +90,7 @@ module.exports = {
     'eqeqeq': [1, 'allow-null'],
     'guard-for-in': 0,
     'no-alert': 1,
+    'no-await-in-loop': 1,
     'no-caller': 2,
     'no-case-declarations': 1,
     'no-div-regex': 1,
@@ -297,8 +296,7 @@ module.exports = {
     'babel/new-cap': 0,
     'babel/object-curly-spacing': 0,
     'babel/no-invalid-this': 0,
-    // Babel (not in eslint)
-    'babel/no-await-in-loop': 1,
+    'babel/no-await-in-loop': 0, // deprecated; now using 'no-await-in-loop' from eslint core
 
     // flowtype (https://github.com/gajus/eslint-plugin-flowtype)
     'flowtype/boolean-style': 1,
@@ -388,8 +386,7 @@ module.exports = {
     'react/jsx-no-undef': 2,
     'react/jsx-pascal-case': 0,
     'react/jsx-sort-props': 0,
-    'react/jsx-space-before-closing': 1,
-    'react/jsx-tag-spacing': 1,
+    'react/jsx-tag-spacing': [1, {beforeSelfClosing: 'always'}],
     'react/jsx-uses-react': 1,
     'react/jsx-uses-vars': 1,
     'react/jsx-wrap-multilines': 1,

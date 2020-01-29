@@ -1,7 +1,31 @@
-## [Unreleased]
+## [3.1.1] - 2019-08-20
+
+### Changed
+- Added peer dependencies for `eslint` (6.x), `eslint-plugin-flowtype` (3.x, 4.x).
+
+
+## [3.1.0] - 2019-03-20
+
+### Removed
+- Removed peer dependency of `eslint-plugin-relay`.
+
+### Changed
+- Upgraded ESLint and other peer dependencies.
+
+## [2.0.1] - 2017-11-26
+
+### Changed
+- Updated peer dependency of `eslint-plugin-relay` to allow a range.
+
+
+## [2.0.0] - 2017-07-19
 
 ### Added
-- `fbjs/opensource` config, as a new ideal config for our open source projects
+- Includes `eslint-plugin-jsx-a11y` and `eslint-plugin-relay`
+
+### Changed
+- Upgraded ESLint and other peer dependencies to latest versions.
+
 
 ## [1.1.1] - 2016-09-13
 

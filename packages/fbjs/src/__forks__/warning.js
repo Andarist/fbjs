@@ -1,10 +1,8 @@
 /**
- * Copyright 2014-2015, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) 2014-present, Facebook, Inc.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule warning
  */
@@ -20,34 +18,33 @@ var emptyFunction = require('emptyFunction');
  * same logic and follow the same code paths.
  */
 
-var warning = emptyFunction;
 
-if (__DEV__) {
-  function printWarning(format, ...args) {
-    var argIndex = 0;
-    var message = 'Warning: ' + format.replace(/%s/g, () => args[argIndex++]);
-    if (typeof console !== 'undefined') {
-      console.error(message);
-    }
-    try {
-      // --- Welcome to debugging React ---
-      // This error was thrown as a convenience so that you can use this stack
-      // to find the callsite that caused this warning to fire.
-      throw new Error(message);
-    } catch (x) {}
+function printWarning(format, ...args) {
+  var argIndex = 0;
+  var message = 'Warning: ' + format.replace(/%s/g, () => args[argIndex++]);
+  if (typeof console !== 'undefined') {
+    console.error(message);
   }
-
-  warning = function(condition, format, ...args) {
-    if (format === undefined) {
-      throw new Error(
-        '`warning(condition, format, ...args)` requires a warning ' +
-        'message argument'
-      );
-    }
-    if (!condition) {
-      printWarning(format, ...args);
-    }
-  };
+  try {
+    // --- Welcome to debugging React ---
+    // This error was thrown as a convenience so that you can use this stack
+    // to find the callsite that caused this warning to fire.
+    throw new Error(message);
+  } catch (x) {}
 }
+
+var warning = __DEV__
+  ? function(condition, format, ...args) {
+      if (format === undefined) {
+        throw new Error(
+          '`warning(condition, format, ...args)` requires a warning ' +
+          'message argument'
+        );
+      }
+      if (!condition) {
+        printWarning(format, ...args);
+      }
+    }
+  : emptyFunction;
 
 module.exports = warning;

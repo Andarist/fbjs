@@ -1,10 +1,8 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+jsinfra
  */
@@ -47,7 +45,7 @@ describe('debounceCore', function() {
     debounced(1, 'a');
     expect(func1).not.toBeCalled();
 
-    mockRunTimersToTime(wait + BUFFER);
+    jest.advanceTimersByTime(wait + BUFFER);
     assertCalledWith(1, 'a');
 
     // make sure that subsequent function isn't called right away
@@ -61,20 +59,20 @@ describe('debounceCore', function() {
     const debounced = debounce(func1, wait);
     debounced(1, 'a');
     expect(func1).not.toBeCalled();
-    mockRunTimersToTime(100);
+    jest.advanceTimersByTime(100);
     debounced(2, 'a');
-    mockRunTimersToTime(100);
+    jest.advanceTimersByTime(100);
     debounced(3, 'a');
-    mockRunTimersToTime(100);
+    jest.advanceTimersByTime(100);
     debounced(4, 'a');
-    mockRunTimersToTime(100);
+    jest.advanceTimersByTime(100);
     debounced(5, 'a');
     expect(mockGetTimersCount()).toBe(1);
-    mockRunTimersToTime(wait + BUFFER);
+    jest.advanceTimersByTime(wait + BUFFER);
     assertCalledWith(5, 'a');
     debounced(6, 'a');
     debounced(7, 'a');
-    mockRunTimersToTime(wait + BUFFER);
+    jest.advanceTimersByTime(wait + BUFFER);
     assertCalledWith(7, 'a');
     expect(func1.mock.calls.length).toBe(2);
   });

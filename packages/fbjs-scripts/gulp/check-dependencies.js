@@ -1,21 +1,19 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) 2013-present, Facebook, Inc.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 'use strict';
 
-var gutil = require('gulp-util');
+var PluginError = require('plugin-error');
+var colors = require('ansi-colors');
+var fancyLog = require('fancy-log');
 var path = require('path');
 var semver = require('semver');
 var spawn = require('cross-spawn');
 var through = require('through2');
-
-var colors = gutil.colors;
 
 var PLUGIN_NAME = 'check-dependencies';
 
@@ -24,8 +22,8 @@ module.exports = function(opts) {
     var cwd = path.dirname(file.path);
     var pkgData = JSON.parse(file.contents.toString());
     var outdated = spawn(
-      'npm',
-      ['outdated', '--json', '--long'],
+      'yarn',
+      ['outdated', '--json'],
       { cwd: cwd }
     );
     var data = '';
@@ -35,23 +33,43 @@ module.exports = function(opts) {
     });
 
     outdated.on('exit', function(code) {
-      // npm outdated now exits with non-zero when there are outdated deps, so
-      // we'll handle that gracefully across npm versions and just assume that
-      // things are fine unless we can't parse stdout as JSON.
       try {
-        var outdatedData = JSON.parse(data);
+        // Parse the yarn outdated format (http://jsonlines.org/)
+        var outdatedData = data
+          .split('\n')
+          .filter(Boolean)
+          .map(d => JSON.parse(d))
+          .filter(j => j.type === 'table')[0].data;
       } catch (e) {
-        cb(new gutil.PluginError(PLUGIN_NAME, 'npm broke'));
+        console.log('error', e)
+        cb(new PluginError(PLUGIN_NAME, 'npm broke'));
       }
 
+      // Convert ["Package", "Current",...] to {"Package": 0, ...}
+      const name2idx = {};
+      outdatedData.head.forEach((key, idx) => name2idx[key] = idx);
+      const {
+        Package: NAME,
+        Current: CURRENT,
+        "Package Type": TYPE
+      } = name2idx;
+
       var failures = [];
-      Object.keys(outdatedData).forEach(function(name) {
-        var current = outdatedData[name].current;
-        var type = outdatedData[name].type;
-        var requested = pkgData[type][name];
+      outdatedData.body.forEach(function(row) {
+        var name = row[NAME];
+        var current = row[CURRENT];
+        var type = row[TYPE];
+        var pkgDeps = pkgData[type];
+
+        if (!pkgDeps) {
+          fancyLog(`Found missing dependency category ${type}.`);
+          return;
+        }
+
+        var requested = pkgDeps[name];
 
         if (!requested) {
-          gutil.log('Found extraneous outdated dependency. Consider running `npm prune`');
+          fancyLog('Found extraneous outdated dependency. Consider running `npm prune`');
           return;
         }
 
@@ -63,7 +81,7 @@ module.exports = function(opts) {
 
       if (failures.length) {
         failures.forEach((failure) => {
-          gutil.log(
+          fancyLog(
             `${colors.bold(failure.name)} is outdated ` +
             `(${colors.red(failure.current)} does not satisfy ` +
             `${colors.yellow(failure.requested)})`
@@ -72,7 +90,7 @@ module.exports = function(opts) {
         var msg =
           'Some of your dependencies are outdated. Please run ' +
           `${colors.bold('npm update')} to ensure you are up to date.`;
-        cb(new gutil.PluginError(PLUGIN_NAME, msg));
+        cb(new PluginError(PLUGIN_NAME, msg));
         return;
       }
 

@@ -1,10 +1,8 @@
 /**
- * Copyright 2013-2015, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) 2013-present, Facebook, Inc.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 /**
@@ -32,6 +30,7 @@ const maxLenIgnorePattern = shared.maxLenIgnorePattern;
 const OFF = 0;
 const WARNING = 1;
 const ERROR = 2;
+const INDENT_SIZE = 2;
 
 function getBaseConfig() {
   return {
@@ -44,6 +43,7 @@ function getBaseConfig() {
     plugins: [
       'babel',
       'flowtype',
+      'jsx-a11y',
       'react',
     ],
 
@@ -63,7 +63,9 @@ function getBaseConfig() {
       // equivalent to jshint boss
       'no-cond-assign': OFF,
       // equivalent to jshint devel
-      'no-console': OFF,
+      'no-console': [WARNING, {
+        allow: ['warn', 'error', 'time', 'timeEnd', 'timeStamp'],
+      }],
       // prohibits things like `while (true)`
       'no-constant-condition': OFF,
       // we need to be able to match these
@@ -212,7 +214,7 @@ function getBaseConfig() {
       // there are very limited valid use-cases for this
       'no-sequences': WARNING,
       // we're already pretty good about this, and it hides stack traces
-      'no-throw-literal': WARNING,
+      'no-throw-literal': ERROR,
       // breaks on `foo && foo.bar()` expression statements, which are common
       'no-unused-expressions': OFF,
       // disallow unnecessary .call() and .apply()
@@ -258,7 +260,7 @@ function getBaseConfig() {
       // using undefined is safe because we enforce no-shadow-restricted-names
       'no-undefined': OFF,
       // equivalent to jshint unused
-      'no-unused-vars': [WARNING, {args: 'none'}],
+      'no-unused-vars': [WARNING, {args: 'none', varsIgnorePattern: '^_'}],
       // too noisy
       'no-use-before-define': OFF,
 
@@ -297,7 +299,7 @@ function getBaseConfig() {
       'id-length': OFF,
       'id-match': OFF,
       // we weren't enforcing this with jshint, so erroring would be too noisy
-      'indent': [WARNING, 2, {SwitchCase: 1}],
+      'indent': [WARNING, INDENT_SIZE, {SwitchCase: 1}],
       // we use single quotes for JS literals, double quotes for JSX literals
       'jsx-quotes': [WARNING, 'prefer-double'],
       // we may use extra spaces for alignment
@@ -307,8 +309,8 @@ function getBaseConfig() {
       // should be handled by a generic TXT linter instead
       'linebreak-style': [OFF, 'unix'],
       'max-depth': OFF,
-      'max-len': [WARNING, 120, 2,
-        {'ignorePattern': maxLenIgnorePattern},
+      'max-len': [WARNING, 80, INDENT_SIZE,
+        {'ignorePattern': maxLenIgnorePattern, 'ignoreUrls': true},
       ],
       'max-nested-callbacks': OFF,
       'max-params': OFF,
@@ -354,7 +356,14 @@ function getBaseConfig() {
       'padded-blocks': OFF,
       // probably too noisy on pre-ES5 code
       'quote-props': [OFF, 'as-needed'],
-      'quotes': [WARNING, 'single', 'avoid-escape'],
+      'quotes': [
+        WARNING,
+        'single',
+        {
+          avoidEscape: true,
+          allowTemplateLiterals: true,
+        },
+      ],
       'require-jsdoc': OFF,
       'semi-spacing': [WARNING, {before: false, after: true}],
       // equivalent to jshint asi/W032
@@ -394,6 +403,7 @@ function getBaseConfig() {
       'no-dupe-class-members': ERROR,
       // violation of the ES6 spec, won't transform, `this` is part of the TDZ
       'no-this-before-super': ERROR,
+      'no-useless-computed-key': WARNING,
       // we have way too much ES3 & ES5 code
       'no-var': OFF,
       'object-shorthand': OFF,
@@ -443,6 +453,7 @@ function getBaseConfig() {
       // forked to fb-www/jsx-uses-react
       'react/jsx-uses-react': OFF,
       'react/jsx-uses-vars': ERROR,
+      'react/jsx-wrap-multilines': OFF,
       'react/no-comment-textnodes': OFF,
       'react/no-danger': OFF,
       'react/no-deprecated': OFF,
@@ -466,7 +477,78 @@ function getBaseConfig() {
       'react/self-closing-comp': OFF,
       'react/sort-comp': OFF,
       'react/sort-prop-types': OFF,
-      'react/wrap-multilines': OFF,
+
+      // JSX Accessibility checks
+      'jsx-a11y/accessible-emoji': OFF,
+      'jsx-a11y/anchor-has-content': OFF,
+      'jsx-a11y/aria-activedescendant-has-tabindex': OFF,
+      'jsx-a11y/aria-props': WARNING,
+      'jsx-a11y/aria-proptypes': OFF,
+      'jsx-a11y/aria-role': WARNING,
+      'jsx-a11y/aria-unsupported-elements': OFF,
+      'jsx-a11y/click-events-have-key-events': OFF,
+      'jsx-a11y/heading-has-content': OFF,
+      'jsx-a11y/html-has-lang': OFF,
+      'jsx-a11y/iframe-has-title': OFF,
+      'jsx-a11y/img-has-alt': OFF,
+      'jsx-a11y/img-redundant-alt': OFF,
+      'jsx-a11y/interactive-supports-focus': [
+        WARNING,
+        {
+          tabbable: [
+            'button',
+            'checkbox',
+            'link',
+            'searchbox',
+            'spinbutton',
+            'switch',
+            'textbox',
+          ],
+        },
+      ],
+      'jsx-a11y/label-has-for': OFF,
+      'jsx-a11y/lang': OFF,
+      'jsx-a11y/mouse-events-have-key-events': OFF,
+      'jsx-a11y/no-access-key': OFF,
+      'jsx-a11y/no-autofocus': OFF,
+      'jsx-a11y/no-distracting-elements': OFF,
+      'jsx-a11y/no-interactive-element-to-noninteractive-role': [
+        WARNING,
+        {
+          tr: ['none', 'presentation'],
+        },
+      ],
+      'jsx-a11y/no-noninteractive-element-interactions': [
+        WARNING,
+        {
+          handlers: ['onClick'],
+        },
+      ],
+      'jsx-a11y/no-noninteractive-element-to-interactive-role': [
+        WARNING,
+        {
+          ul: ['listbox', 'menu', 'menubar',
+            'radiogroup', 'tablist', 'tree', 'treegrid'],
+          ol: ['listbox', 'menu', 'menubar',
+            'radiogroup', 'tablist', 'tree', 'treegrid'],
+          li: ['menuitem', 'option', 'row', 'tab', 'treeitem'],
+          table: ['grid'],
+          td: ['gridcell'],
+        },
+      ],
+      'jsx-a11y/no-noninteractive-tabindex': WARNING,
+      'jsx-a11y/no-onchange': OFF,
+      'jsx-a11y/no-redundant-roles': OFF,
+      'jsx-a11y/no-static-element-interactions': [
+        WARNING,
+        {
+          handlers: ['onClick'],
+        },
+      ],
+      'jsx-a11y/role-has-required-aria-props': WARNING,
+      'jsx-a11y/role-supports-aria-props': WARNING,
+      'jsx-a11y/scope': OFF,
+      'jsx-a11y/tabindex-no-positive': WARNING,
 
       // eslint-plugin-flowtype
       // These don't actually result in warnings. Enabling them ensures they run
@@ -507,6 +589,10 @@ var extendedConfig = {
     'react/jsx-uses-react': ERROR,
     'react/react-in-jsx-scope': ERROR,
 
+    // To keep base config in sync with internal codebase but still make
+    // open source happy, disable a deprecated rule and enable different one.
+    'babel/flow-object-type': OFF,
+    'flowtype/object-type-delimiter': [WARNING, 'comma'],
   },
 };
 

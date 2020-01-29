@@ -1,14 +1,24 @@
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
- * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  * @providesModule emptyFunction
  * @flow
  */
+
+export type FunctionReturning<+T> = (...args: $ReadOnlyArray<mixed>) => T;
+
+export type EmptyFunctionType = {
+  (...args: $ReadOnlyArray<mixed>): void,
+  thatReturns: <T>(x: T) => FunctionReturning<T>,
+  thatReturnsFalse: FunctionReturning<false>,
+  thatReturnsTrue: FunctionReturning<true>,
+  thatReturnsNull: FunctionReturning<null>,
+  thatReturnsThis: FunctionReturning<mixed>,
+  thatReturnsArgument: <T>(x: T) => T,
+};
 
 function makeEmptyFunction<T>(arg: T): (...args: Array<any>) => T {
   return function() {
@@ -21,7 +31,7 @@ function makeEmptyFunction<T>(arg: T): (...args: Array<any>) => T {
  * primarily useful idiomatically for overridable function endpoints which
  * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
  */
-const emptyFunction: (...args: Array<any>) => void = function() {};
+const emptyFunction = function() {};
 
 emptyFunction.thatReturns = makeEmptyFunction;
 emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
@@ -30,4 +40,4 @@ emptyFunction.thatReturnsNull = makeEmptyFunction(null);
 emptyFunction.thatReturnsThis = function() { return this; };
 emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
-module.exports = emptyFunction;
+module.exports = (emptyFunction: EmptyFunctionType);
